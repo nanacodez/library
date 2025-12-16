@@ -1,6 +1,6 @@
-/* --- style.css --- */
+/* --- style.css (CÓDIGO UNIFICADO E LIMPO) --- */
 
-/* Variáveis de Cores (Mude aqui para trocar o tema todo) */
+/* 1. VARIÁVEIS E BASE */
 :root {
     --primary: #ff6b6b;
     --secondary: #4ecdc4;
@@ -26,9 +26,112 @@ h1 {
 .container {
     max-width: 1000px;
     margin: 0 auto;
+    position: relative; /* Para o badge de premium se posicionar */
 }
 
-/* --- FORMULÁRIO --- */
+/* Utilitário para esconder elementos (Necessário para o JS) */
+.hidden {
+    display: none !important;
+}
+
+/* --- 2. PREMIUM & STATUS --- */
+.user-status {
+    position: absolute;
+    top: -50px; /* Ajustado para ficar acima do título ou no canto */
+    right: 0;
+    background: #333;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    border: 1px solid #555;
+}
+
+.user-status.is-premium {
+    border-color: gold;
+    color: gold;
+    background: #2a1a00;
+}
+
+/* --- 3. ÁREA DE BUSCA (AUTOCOMPLETE) --- */
+.search-container {
+    background-color: var(--card-bg);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #2a2a40;
+    text-align: center;
+}
+
+.search-container h3 {
+    margin-top: 0;
+    color: #ccc;
+    font-size: 1.1em;
+}
+
+.search-wrapper {
+    position: relative;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+#buscaManga {
+    text-align: center;
+    font-size: 1.1em;
+}
+
+.suggestions-box {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: #222;
+    border: 1px solid #444;
+    border-radius: 0 0 8px 8px;
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.suggestion-item {
+    padding: 10px;
+    border-bottom: 1px solid #333;
+    cursor: pointer;
+    text-align: left;
+    color: #eee;
+    transition: background 0.2s;
+}
+
+.suggestion-item:hover {
+    background-color: var(--primary);
+    color: white;
+}
+
+/* Botão de "Adicionar Manualmente" na busca */
+.suggestion-add {
+    padding: 15px;
+    background-color: #2a2a40;
+    border-top: 1px solid #444;
+    cursor: pointer;
+    text-align: center;
+    color: var(--secondary);
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.suggestion-add:hover {
+    background-color: var(--secondary);
+    color: #1a1a2e;
+}
+
+.hint {
+    font-size: 0.8em;
+    color: #777;
+    margin-top: 5px;
+}
+
+/* --- 4. FORMULÁRIO --- */
 .form-card {
     background-color: var(--card-bg);
     padding: 25px;
@@ -39,7 +142,6 @@ h1 {
     transition: border-color 0.3s;
 }
 
-/* Estilo quando está editando */
 .form-card.editing {
     border-left-color: var(--secondary);
 }
@@ -77,7 +179,25 @@ input:focus, textarea:focus {
     outline: 2px solid var(--primary);
 }
 
-/* --- BOTÕES --- */
+/* Preview da Imagem no Form */
+.cover-preview-container {
+    width: 100px;
+    height: 140px;
+    background-color: #000;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-right: 15px;
+    border: 2px solid #333;
+    flex-shrink: 0;
+}
+
+.cover-preview-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* --- 5. BOTÕES --- */
 .btn-group {
     display: flex;
     gap: 10px;
@@ -112,315 +232,14 @@ button.btn-cancel {
     border-radius: 6px;
     font-weight: bold;
     font-size: 16px;
-    display: none; /* Escondido por padrão */
+    display: none;
 }
 
 button.btn-cancel:hover {
     background-color: #777;
 }
 
-/* Alteração visual no botão salvar quando em modo edição */
-body.mode-edit .btn-submit {
-    background-color: var(--secondary);
-    color: #1a1a2e;
-}
-
-/* --- GRID E CARDS --- */
-.manga-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-}
-
-.manga-card {
-    background-color: var(--card-bg);
-    padding: 20px;
-    border-radius: 12px;
-    position: relative;
-    transition: transform 0.2s;
-    border: 1px solid #2a2a40;
-}
-
-.manga-card:hover {
-    transform: translateY(-5px);
-    border-color: var(--primary);
-}
-
-.manga-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 10px;
-}
-
-.manga-title {
-    font-size: 1.4em;
-    font-weight: bold;
-    color: var(--primary);
-    margin: 0;
-}
-
-.favorite-btn {
-    background: none;
-    border: none;
-    font-size: 1.5em;
-    color: #555;
-    transition: 0.3s;
-}
-
-.favorite-btn.active {
-    color: gold;
-}
-
-.manga-dates {
-    font-size: 0.85em;
-    color: #aaa;
-    margin-bottom: 15px;
-    background: rgba(0,0,0,0.2);
-    padding: 8px;
-    border-radius: 6px;
-}
-
-.date-item {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 4px;
-}
-
-.manga-review {
-    font-style: italic;
-    color: #ddd;
-    margin-bottom: 15px;
-    font-size: 0.95em;
-    line-height: 1.4;
-    white-space: pre-wrap;
-}
-
-.manga-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-top: 1px solid #2a2a40;
-    padding-top: 10px;
-}
-
-.stars {
-    color: gold;
-    letter-spacing: 2px;
-}
-
-/* Botões pequenos do Card */
-.card-actions {
-    display: flex;
-    gap: 5px;
-}
-
-.btn-card {
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 0.8em;
-    border: 1px solid;
-    background: transparent;
-}
-
-.btn-delete {
-    color: #ff4757;
-    border-color: #ff4757;
-}
-
-.btn-delete:hover {
-    background-color: #ff4757;
-    color: white;
-}
-
-.btn-edit {
-    color: var(--secondary);
-    border-color: var(--secondary);
-}
-
-.btn-edit:hover {
-    background-color: var(--secondary);
-    color: #1a1a2e;
-}
-
-/* Badges */
-.status-badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.75em;
-    font-weight: bold;
-    margin-top: 5px;
-}
-
-.status-lendo {
-    background-color: #2ecc71;
-    color: #1a1a2e;
-}
-
-.status-concluido {
-    background-color: #3498db;
-    color: white;
-}
-
-/* --- style.css (Adicione isso ao final do arquivo) --- */
-
-/* Área de Busca */
-.search-container {
-    background-color: var(--card-bg);
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    border: 1px solid #2a2a40;
-    text-align: center;
-}
-
-.search-container h3 {
-    margin-top: 0;
-    color: #ccc;
-    font-size: 1.1em;
-}
-
-.hint {
-    font-size: 0.8em;
-    color: #777;
-    margin-top: 5px;
-}
-
-/* Wrapper para posicionamento relativo */
-.search-wrapper {
-    position: relative; /* Importante para a lista absoluta funcionar */
-    max-width: 500px;
-    margin: 0 auto;
-}
-
-/* Caixa de Sugestões (Dropdown) */
-.suggestions-box {
-    position: absolute;
-    top: 100%; /* Fica logo abaixo do input */
-    left: 0;
-    width: 100%;
-    background-color: #222;
-    border: 1px solid #444;
-    border-radius: 0 0 8px 8px;
-    z-index: 1000; /* Garante que fique por cima de tudo */
-    max-height: 200px;
-    overflow-y: auto; /* Scroll se a lista for longa */
-    display: none; /* Escondido por padrão */
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-}
-
-/* Item da lista */
-.suggestion-item {
-    padding: 10px;
-    border-bottom: 1px solid #333;
-    cursor: pointer;
-    text-align: left;
-    color: #eee;
-    transition: background 0.2s;
-}
-
-.suggestion-item:last-child {
-    border-bottom: none;
-}
-
-.suggestion-item:hover {
-    background-color: var(--primary);
-    color: white;
-}
-
-/* Input de busca específico */
-#buscaManga {
-    text-align: center;
-    font-size: 1.1em;
-}
-
-/* --- Adicione ou Substitua no style.css --- */
-
-/* Preview no Formulário */
-.cover-preview-container {
-    width: 100px;
-    height: 140px;
-    background-color: #000;
-    border-radius: 6px;
-    overflow: hidden;
-    margin-right: 15px;
-    border: 2px solid #333;
-    flex-shrink: 0; /* Não deixa espremer */
-}
-
-.cover-preview-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* Novo Layout do Card (Com imagem) */
-.manga-card {
-    background-color: var(--card-bg);
-    border-radius: 12px;
-    position: relative;
-    transition: transform 0.2s;
-    border: 1px solid #2a2a40;
-    overflow: hidden; /* Para a imagem não sair da borda */
-    display: flex;
-    flex-direction: column;
-}
-
-/* Imagem no Card */
-.card-cover {
-    width: 100%;
-    height: 180px; /* Altura fixa para ficar uniforme */
-    object-fit: cover; /* Corta a imagem para caber sem esticar */
-    border-bottom: 3px solid var(--primary);
-}
-
-.card-content {
-    padding: 15px;
-    flex: 1; /* Ocupa o resto do espaço */
-    display: flex;
-    flex-direction: column;
-}
-
-.manga-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 10px;
-}
-
-/* Ajustes no texto para não quebrar */
-.manga-title {
-    font-size: 1.2em;
-    font-weight: bold;
-    color: var(--primary);
-    margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis; /* Coloca '...' se o nome for grande */
-    max-width: 180px;
-}
-
-/* --- style.css --- */
-
-/* Badge de Usuário Premium (Para mostrar no topo) */
-.user-status {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: #333;
-    padding: 5px 15px;
-    border-radius: 20px;
-    font-size: 0.8em;
-    border: 1px solid #555;
-}
-.user-status.is-premium {
-    border-color: gold;
-    color: gold;
-    background: #2a1a00;
-}
-
-/* Botão que substitui o Input quando é Grátis */
+/* Botão Dourado de Bloqueio (Premium) */
 .btn-locked {
     width: 100%;
     padding: 12px;
@@ -436,19 +255,143 @@ body.mode-edit .btn-submit {
     gap: 10px;
     transition: transform 0.2s;
 }
+
 .btn-locked:hover {
     transform: scale(1.02);
     box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
-/* --- MODAL DE PAGAMENTO (Paywall) --- */
+/* Mudança de cor quando editando */
+body.mode-edit .btn-submit {
+    background-color: var(--secondary);
+    color: #1a1a2e;
+}
+
+/* --- 6. GRID E CARDS DE MANGÁ --- */
+.manga-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.manga-card {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    position: relative;
+    transition: transform 0.2s;
+    border: 1px solid #2a2a40;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.manga-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary);
+}
+
+/* Imagem do Card */
+.card-cover {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-bottom: 3px solid var(--primary);
+}
+
+/* Conteúdo interno do card */
+.card-content {
+    padding: 15px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.manga-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.manga-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--primary);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+}
+
+.manga-review {
+    font-style: italic;
+    color: #ddd;
+    margin-bottom: 15px;
+    font-size: 0.85em;
+    line-height: 1.4;
+    white-space: pre-wrap;
+}
+
+.manga-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #2a2a40;
+    padding-top: 10px;
+    margin-top: auto;
+}
+
+/* Elementos do Card */
+.favorite-btn {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    color: #555;
+    transition: 0.3s;
+    cursor: pointer;
+}
+.favorite-btn.active { color: gold; }
+
+.stars { color: gold; letter-spacing: 2px; }
+
+.status-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75em;
+    font-weight: bold;
+    margin-top: 5px;
+}
+.status-lendo { background-color: #2ecc71; color: #1a1a2e; }
+.status-concluido { background-color: #3498db; color: white; }
+
+/* Botões de Ação Pequenos */
+.card-actions { display: flex; gap: 5px; }
+
+.btn-card {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    border: 1px solid;
+    background: transparent;
+    cursor: pointer;
+}
+
+.btn-delete { color: #ff4757; border-color: #ff4757; }
+.btn-delete:hover { background-color: #ff4757; color: white; }
+
+.btn-edit { color: var(--secondary); border-color: var(--secondary); }
+.btn-edit:hover { background-color: var(--secondary); color: #1a1a2e; }
+
+/* --- 7. MODAL (PAYWALL) --- */
 .modal-overlay {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
     background: rgba(0,0,0,0.8);
     z-index: 2000;
-    display: none; /* Escondido por padrão */
+    display: none;
     justify-content: center;
     align-items: center;
 }
