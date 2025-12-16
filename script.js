@@ -1,22 +1,68 @@
-/* --- script.js --- */
+/* --- script.js COMPLETO E ATUALIZADO --- */
 
-// 1. STATE & STORAGE
+// 1. DADOS INICIAIS
+// Carrega o que está salvo ou cria lista vazia
 let biblioteca = JSON.parse(localStorage.getItem('meusMangas')) || [];
 let idEdicao = null; 
 
+// BANCO DE DADOS MOCK (Para o Autocomplete)
+const bancoDeMangas = [
+    { 
+        nome: "One Piece", 
+        capa: "https://m.media-amazon.com/images/I/5186mF+xXVL._SY344_BO1,204,203,200_.jpg", 
+        sinopse: "Luffy busca o maior tesouro do mundo para virar o Rei dos Piratas." 
+    },
+    { 
+        nome: "Naruto", 
+        capa: "https://m.media-amazon.com/images/I/511TN544E8L._SY344_BO1,204,203,200_.jpg", 
+        sinopse: "Um ninja busca reconhecimento e sonha em se tornar Hokage." 
+    },
+    { 
+        nome: "Berserk", 
+        capa: "https://m.media-amazon.com/images/I/51F59T0+sWL._SY344_BO1,204,203,200_.jpg", 
+        sinopse: "A luta brutal de Guts contra demônios e o destino." 
+    },
+    { 
+        nome: "Demon Slayer", 
+        capa: "https://m.media-amazon.com/images/I/515f1-sL-tL._SY344_BO1,204,203,200_.jpg", 
+        sinopse: "Tanjiro luta para curar sua irmã transformada em oni." 
+    },
+    { 
+        nome: "Jujutsu Kaisen", 
+        capa: "https://m.media-amazon.com/images/I/51sK4jX6MOL._SY344_BO1,204,203,200_.jpg", 
+        sinopse: "Yuji Itadori entra no mundo dos feiticeiros Jujutsu." 
+    },
+    {
+        nome: "Chainsaw Man",
+        capa: "https://m.media-amazon.com/images/I/516+2g82LmL._SY344_BO1,204,203,200_.jpg",
+        sinopse: "Denji é um caçador de demônios que se funde com seu cão-demônio."
+    }
+];
+
+const CAPA_PADRAO = "https://via.placeholder.com/300x400?text=Sem+Capa";
+
+// 2. FUNÇÕES UTILITÁRIAS
 const setHoje = () => {
-    const hoje = new Date().toISOString().split('T')[0];
-    const inputRegistro = document.getElementById('dataRegistro');
-    if(inputRegistro) inputRegistro.value = hoje;
+    const el = document.getElementById('dataRegistro');
+    if(el) el.value = new Date().toISOString().split('T')[0];
 };
 
-// 2. FUNÇÕES CORE
+// Atualiza a imagem de preview quando o usuário cola o link
+window.atualizarPreview = function() {
+    const url = document.getElementById('capaUrl').value;
+    const img = document.getElementById('previewCapa');
+    if(img) img.src = url || CAPA_PADRAO;
+}
+
 function salvarLocal() {
     localStorage.setItem('meusMangas', JSON.stringify(biblioteca));
 }
 
+// 3. RENDERIZAÇÃO (Desenhar na tela)
 function renderizar() {
     const grid = document.getElementById('listaMangas');
+    if(!grid) return;
+    
     grid.innerHTML = '';
     const listaOrdenada = biblioteca.sort((a, b) => (b.favorito === true) - (a.favorito === true));
 
@@ -26,38 +72,34 @@ function renderizar() {
             ? `<span class="status-badge status-concluido">Concluído</span>` 
             : `<span class="status-badge status-lendo">Lendo</span>`;
 
-        const dtInicio = new Date(manga.inicio).toLocaleDateString('pt-BR', {timeZone: 'UTC'});
-        const dtRegistro = new Date(manga.registro).toLocaleDateString('pt-BR', {timeZone: 'UTC'});
-        const dtFim = manga.fim ? new Date(manga.fim).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : '---';
+        const imagemCapa = manga.capa || CAPA_PADRAO;
 
         const card = document.createElement('div');
         card.className = 'manga-card';
         
         card.innerHTML = `
-            <div class="manga-header">
-                <div>
-                    <h3 class="manga-title">${manga.nome}</h3>
-                    ${statusBadge}
+            <img src="${imagemCapa}" class="card-cover" alt="${manga.nome}" onerror="this.src='${CAPA_PADRAO}'">
+            
+            <div class="card-content">
+                <div class="manga-header">
+                    <div>
+                        <h3 class="manga-title" title="${manga.nome}">${manga.nome}</h3>
+                        ${statusBadge}
+                    </div>
+                    <button class="favorite-btn ${manga.favorito ? 'active' : ''}" 
+                            onclick="toggleFavorito(${manga.id})" title="Favoritar">♥</button>
                 </div>
-                <button class="favorite-btn ${manga.favorito ? 'active' : ''}" 
-                        onclick="toggleFavorito(${manga.id})" title="Favoritar">
-                    ♥
-                </button>
-            </div>
-            
-            <div class="manga-dates">
-                <div class="date-item"><span>Início:</span> <b>${dtInicio}</b></div>
-                <div class="date-item"><span>Fim:</span> <b>${dtFim}</b></div>
-                <div class="date-item"><span>Add em:</span> <b>${dtRegistro}</b></div>
-            </div>
-
-            <p class="manga-review">"${manga.review}"</p>
-            
-            <div class="manga-footer">
-                <span class="stars" title="Nota ${manga.nota}">${estrelas}</span>
-                <div class="card-actions">
-                    <button class="btn-card btn-edit" onclick="prepararEdicao(${manga.id})">Editar</button>
-                    <button class="btn-card btn-delete" onclick="deletarManga(${manga.id})">Remover</button>
+                
+                <p class="manga-review" style="font-size: 0.85em; height: 40px; overflow: hidden; color: #ccc;">
+                    ${manga.review ? manga.review.substring(0, 60) + '...' : 'Sem análise.'}
+                </p>
+                
+                <div class="manga-footer" style="margin-top: auto;">
+                    <span class="stars">${estrelas}</span>
+                    <div class="card-actions">
+                        <button class="btn-card btn-edit" onclick="prepararEdicao(${manga.id})">Editar</button>
+                        <button class="btn-card btn-delete" onclick="deletarManga(${manga.id})">X</button>
+                    </div>
                 </div>
             </div>
         `;
@@ -65,83 +107,34 @@ function renderizar() {
     });
 }
 
-// 3. LÓGICA DE EDIÇÃO
-function prepararEdicao(id) {
-    const manga = biblioteca.find(m => m.id === id);
-    if (!manga) return;
-
-    document.getElementById('nome').value = manga.nome;
-    document.getElementById('nota').value = manga.nota;
-    document.getElementById('dataInicio').value = manga.inicio;
-    document.getElementById('dataFim').value = manga.fim || '';
-    document.getElementById('dataRegistro').value = manga.registro;
-    document.getElementById('review').value = manga.review;
-    document.getElementById('favorito').checked = manga.favorito;
-
-    idEdicao = id;
-    
-    document.getElementById('btnSubmit').innerText = "Salvar Alterações";
-    document.getElementById('btnCancel').style.display = "inline-block";
-    document.getElementById('formCard').classList.add('editing');
-    document.body.classList.add('mode-edit');
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function cancelarEdicao() {
-    document.getElementById('mangaForm').reset();
-    setHoje();
-    
-    idEdicao = null;
-    
-    document.getElementById('btnSubmit').innerText = "Adicionar à Coleção";
-    document.getElementById('btnCancel').style.display = "none";
-    document.getElementById('formCard').classList.remove('editing');
-    document.body.classList.remove('mode-edit');
-}
-
-/* --- Adicione no script.js --- */
-
-// 1. BANCO DE DADOS MOCK (Simulando uma API)
-const bancoDeMangas = [
-    "One Piece", "Naruto", "Bleach", "Dragon Ball Z", "Attack on Titan",
-    "Demon Slayer", "Jujutsu Kaisen", "My Hero Academia", "Fullmetal Alchemist",
-    "Berserk", "Hunter x Hunter", "Death Note", "Tokyo Ghoul",
-    "Chainsaw Man", "Vagabond", "Vinland Saga", "One Punch Man",
-    "JoJo's Bizarre Adventure", "Monster", "Akira", "Neon Genesis Evangelion",
-    "Spy x Family", "Blue Lock", "Haikyuu!!", "Black Clover"
-];
-
-// 2. LÓGICA DE AUTOCOMPLETE
+// 4. AUTOCOMPLETE (Busca inteligente)
 const inputBusca = document.getElementById('buscaManga');
 const boxSugestoes = document.getElementById('listaSugestoes');
 
-if(inputBusca) { // Verifica se o elemento existe para evitar erros
+if(inputBusca && boxSugestoes) {
     inputBusca.addEventListener('input', function() {
         const termo = this.value.toLowerCase();
-        boxSugestoes.innerHTML = ''; // Limpa sugestões anteriores
+        boxSugestoes.innerHTML = '';
 
-        if (termo.length < 2) {
-            boxSugestoes.style.display = 'none';
-            return;
+        if (termo.length < 2) { 
+            boxSugestoes.style.display = 'none'; 
+            return; 
         }
 
-        // Filtra o banco de dados
-        const resultados = bancoDeMangas.filter(manga => 
-            manga.toLowerCase().includes(termo)
-        );
+        const resultados = bancoDeMangas.filter(m => m.nome.toLowerCase().includes(termo));
 
         if (resultados.length > 0) {
             boxSugestoes.style.display = 'block';
-            
             resultados.forEach(manga => {
                 const div = document.createElement('div');
                 div.className = 'suggestion-item';
-                div.innerText = manga;
-                
-                // Evento de Clique na Sugestão
+                div.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="${manga.capa}" style="width: 30px; height: 40px; object-fit: cover;">
+                        <span>${manga.nome}</span>
+                    </div>
+                `;
                 div.onclick = () => selecionarManga(manga);
-                
                 boxSugestoes.appendChild(div);
             });
         } else {
@@ -149,7 +142,7 @@ if(inputBusca) { // Verifica se o elemento existe para evitar erros
         }
     });
 
-    // Esconder lista se clicar fora
+    // Fecha a lista se clicar fora
     document.addEventListener('click', (e) => {
         if (!inputBusca.contains(e.target) && !boxSugestoes.contains(e.target)) {
             boxSugestoes.style.display = 'none';
@@ -157,65 +150,94 @@ if(inputBusca) { // Verifica se o elemento existe para evitar erros
     });
 }
 
-// Função que joga o nome para o formulário
-function selecionarManga(nome) {
-    // 1. Preenche o campo de nome no formulário principal
-    document.getElementById('nome').value = nome;
+function selecionarManga(mangaObj) {
+    document.getElementById('nome').value = mangaObj.nome;
+    document.getElementById('capaUrl').value = mangaObj.capa;
+    document.getElementById('review').value = mangaObj.sinopse;
     
-    // 2. Limpa a busca e esconde a lista
+    atualizarPreview(); 
+
     inputBusca.value = '';
     boxSugestoes.style.display = 'none';
-    
-    // 3. Efeito visual: Rola a tela até o formulário e foca na nota
     document.getElementById('mangaForm').scrollIntoView({ behavior: 'smooth' });
-    
-    // Pequeno flash no campo nome para mostrar que foi preenchido
-    const campoNome = document.getElementById('nome');
-    campoNome.style.backgroundColor = '#4ecdc4';
-    setTimeout(() => {
-        campoNome.style.backgroundColor = ''; // Volta ao original do CSS
-    }, 500);
 }
 
-// 4. AÇÕES E LISTENERS
+// 5. INICIALIZAÇÃO E EVENT LISTENERS
 document.addEventListener('DOMContentLoaded', () => {
-    // Inicializa data e renderização ao carregar a página
     setHoje();
     renderizar();
 
-    // Listener do Formulário
-    document.getElementById('mangaForm').addEventListener('submit', (e) => {
-        e.preventDefault();
+    // Listener do Formulário (Submit)
+    const form = document.getElementById('mangaForm');
+    if(form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
 
-        const dadosForm = {
-            nome: document.getElementById('nome').value,
-            nota: parseInt(document.getElementById('nota').value),
-            inicio: document.getElementById('dataInicio').value,
-            fim: document.getElementById('dataFim').value || null,
-            registro: document.getElementById('dataRegistro').value,
-            review: document.getElementById('review').value,
-            favorito: document.getElementById('favorito').checked
-        };
+            const dadosForm = {
+                nome: document.getElementById('nome').value,
+                capa: document.getElementById('capaUrl').value,
+                nota: parseInt(document.getElementById('nota').value),
+                inicio: document.getElementById('dataInicio').value,
+                fim: document.getElementById('dataFim').value || null,
+                registro: document.getElementById('dataRegistro').value,
+                review: document.getElementById('review').value,
+                favorito: document.getElementById('favorito').checked
+            };
 
-        if (idEdicao) {
-            const index = biblioteca.findIndex(m => m.id === idEdicao);
-            if (index !== -1) {
-                biblioteca[index] = { ...dadosForm, id: idEdicao };
+            if (idEdicao) {
+                const index = biblioteca.findIndex(m => m.id === idEdicao);
+                if (index !== -1) biblioteca[index] = { ...dadosForm, id: idEdicao };
+                cancelarEdicao();
+            } else {
+                const novoManga = { ...dadosForm, id: Date.now() };
+                biblioteca.push(novoManga);
+                e.target.reset();
+                setHoje();
+                atualizarPreview();
             }
-            cancelarEdicao();
-        } else {
-            const novoManga = { ...dadosForm, id: Date.now() };
-            biblioteca.push(novoManga);
-            e.target.reset();
-            setHoje();
-        }
-
-        salvarLocal();
-        renderizar();
-    });
+            salvarLocal();
+            renderizar();
+        });
+    }
 });
 
-// Funções globais (precisam estar acessíveis no window para o onclick do HTML)
+// 6. FUNÇÕES GLOBAIS (Edição e Exclusão)
+window.prepararEdicao = function(id) {
+    const manga = biblioteca.find(m => m.id === id);
+    if (!manga) return;
+
+    document.getElementById('nome').value = manga.nome;
+    document.getElementById('capaUrl').value = manga.capa || '';
+    document.getElementById('nota').value = manga.nota;
+    document.getElementById('dataInicio').value = manga.inicio;
+    document.getElementById('dataFim').value = manga.fim || '';
+    document.getElementById('dataRegistro').value = manga.registro;
+    document.getElementById('review').value = manga.review;
+    document.getElementById('favorito').checked = manga.favorito;
+
+    atualizarPreview(); 
+
+    idEdicao = id;
+    document.getElementById('btnSubmit').innerText = "Salvar Alterações";
+    const btnCancel = document.getElementById('btnCancel');
+    if(btnCancel) btnCancel.style.display = "inline-block";
+    
+    document.getElementById('formCard').classList.add('editing');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+window.cancelarEdicao = function() {
+    document.getElementById('mangaForm').reset();
+    setHoje();
+    atualizarPreview();
+    idEdicao = null;
+    document.getElementById('btnSubmit').innerText = "Adicionar à Coleção";
+    const btnCancel = document.getElementById('btnCancel');
+    if(btnCancel) btnCancel.style.display = "none";
+    
+    document.getElementById('formCard').classList.remove('editing');
+}
+
 window.toggleFavorito = function(id) {
     const index = biblioteca.findIndex(m => m.id === id);
     if(index !== -1) {
@@ -226,13 +248,10 @@ window.toggleFavorito = function(id) {
 }
 
 window.deletarManga = function(id) {
-    if(confirm('Tem certeza que deseja apagar?')) {
+    if(confirm('Tem certeza que deseja apagar este mangá da história?')) {
         biblioteca = biblioteca.filter(m => m.id !== id);
         if (idEdicao === id) cancelarEdicao();
         salvarLocal();
         renderizar();
     }
 }
-
-window.prepararEdicao = prepararEdicao;
-window.cancelarEdicao = cancelarEdicao;
