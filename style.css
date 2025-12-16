@@ -334,3 +334,69 @@ body.mode-edit .btn-submit {
     text-align: center;
     font-size: 1.1em;
 }
+
+/* --- Adicione ou Substitua no style.css --- */
+
+/* Preview no Formulário */
+.cover-preview-container {
+    width: 100px;
+    height: 140px;
+    background-color: #000;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-right: 15px;
+    border: 2px solid #333;
+    flex-shrink: 0; /* Não deixa espremer */
+}
+
+.cover-preview-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Novo Layout do Card (Com imagem) */
+.manga-card {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    position: relative;
+    transition: transform 0.2s;
+    border: 1px solid #2a2a40;
+    overflow: hidden; /* Para a imagem não sair da borda */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Imagem no Card */
+.card-cover {
+    width: 100%;
+    height: 180px; /* Altura fixa para ficar uniforme */
+    object-fit: cover; /* Corta a imagem para caber sem esticar */
+    border-bottom: 3px solid var(--primary);
+}
+
+.card-content {
+    padding: 15px;
+    flex: 1; /* Ocupa o resto do espaço */
+    display: flex;
+    flex-direction: column;
+}
+
+.manga-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+/* Ajustes no texto para não quebrar */
+.manga-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--primary);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Coloca '...' se o nome for grande */
+    max-width: 180px;
+}
