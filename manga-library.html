@@ -144,3 +144,35 @@
 
 </body>
 </html>
+
+<div id="statusUsuario" class="user-status">Plano Grátis</div>
+
+<div style="flex: 1;">
+    
+    <div id="wrapperCapaUrl" class="form-group hidden">
+        <label>Link da Imagem de Capa (Premium)</label>
+        <input type="url" id="capaUrl" placeholder="Cole o link da imagem aqui..." oninput="atualizarPreview()">
+    </div>
+
+    <div id="wrapperPaywall" class="form-group hidden">
+        <label>Imagem de Capa</label>
+        <button type="button" class="btn-locked" onclick="abrirModalPremium()">
+            🔒 Desbloquear Capa Personalizada
+        </button>
+    </div>
+
+    <div class="form-group">
+        <label>Nome do Mangá</label>
+        <input type="text" id="nome" placeholder="Busque acima ou digite aqui..." required>
+    </div>
+</div>
+
+<div id="modalPremium" class="modal-overlay">
+    <div class="modal-box">
+        <h2>👑 Seja Premium</h2>
+        <p>Personalize sua biblioteca! Adicione capas customizadas para mangás raros que não estão no nosso banco de dados.</p>
+        <div class="price">R$ 9,90 <span style="font-size: 0.5em">/vida</span></div>
+        <button class="btn-buy" onclick="comprarPremium()">VIRAR PREMIUM AGORA</button>
+        <button class="btn-close-modal" onclick="fecharModalPremium()">Agora não</button>
+    </div>
+</div>
