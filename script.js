@@ -100,6 +100,83 @@ function cancelarEdicao() {
     document.body.classList.remove('mode-edit');
 }
 
+/* --- Adicione no script.js --- */
+
+// 1. BANCO DE DADOS MOCK (Simulando uma API)
+const bancoDeMangas = [
+    "One Piece", "Naruto", "Bleach", "Dragon Ball Z", "Attack on Titan",
+    "Demon Slayer", "Jujutsu Kaisen", "My Hero Academia", "Fullmetal Alchemist",
+    "Berserk", "Hunter x Hunter", "Death Note", "Tokyo Ghoul",
+    "Chainsaw Man", "Vagabond", "Vinland Saga", "One Punch Man",
+    "JoJo's Bizarre Adventure", "Monster", "Akira", "Neon Genesis Evangelion",
+    "Spy x Family", "Blue Lock", "Haikyuu!!", "Black Clover"
+];
+
+// 2. LÓGICA DE AUTOCOMPLETE
+const inputBusca = document.getElementById('buscaManga');
+const boxSugestoes = document.getElementById('listaSugestoes');
+
+if(inputBusca) { // Verifica se o elemento existe para evitar erros
+    inputBusca.addEventListener('input', function() {
+        const termo = this.value.toLowerCase();
+        boxSugestoes.innerHTML = ''; // Limpa sugestões anteriores
+
+        if (termo.length < 2) {
+            boxSugestoes.style.display = 'none';
+            return;
+        }
+
+        // Filtra o banco de dados
+        const resultados = bancoDeMangas.filter(manga => 
+            manga.toLowerCase().includes(termo)
+        );
+
+        if (resultados.length > 0) {
+            boxSugestoes.style.display = 'block';
+            
+            resultados.forEach(manga => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.innerText = manga;
+                
+                // Evento de Clique na Sugestão
+                div.onclick = () => selecionarManga(manga);
+                
+                boxSugestoes.appendChild(div);
+            });
+        } else {
+            boxSugestoes.style.display = 'none';
+        }
+    });
+
+    // Esconder lista se clicar fora
+    document.addEventListener('click', (e) => {
+        if (!inputBusca.contains(e.target) && !boxSugestoes.contains(e.target)) {
+            boxSugestoes.style.display = 'none';
+        }
+    });
+}
+
+// Função que joga o nome para o formulário
+function selecionarManga(nome) {
+    // 1. Preenche o campo de nome no formulário principal
+    document.getElementById('nome').value = nome;
+    
+    // 2. Limpa a busca e esconde a lista
+    inputBusca.value = '';
+    boxSugestoes.style.display = 'none';
+    
+    // 3. Efeito visual: Rola a tela até o formulário e foca na nota
+    document.getElementById('mangaForm').scrollIntoView({ behavior: 'smooth' });
+    
+    // Pequeno flash no campo nome para mostrar que foi preenchido
+    const campoNome = document.getElementById('nome');
+    campoNome.style.backgroundColor = '#4ecdc4';
+    setTimeout(() => {
+        campoNome.style.backgroundColor = ''; // Volta ao original do CSS
+    }, 500);
+}
+
 // 4. AÇÕES E LISTENERS
 document.addEventListener('DOMContentLoaded', () => {
     // Inicializa data e renderização ao carregar a página
