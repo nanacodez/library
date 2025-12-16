@@ -9,6 +9,69 @@
 </head>
 <body id="bodyPage">
 
+<div class="form-card" id="formCard">
+    <form id="mangaForm">
+        <div class="form-row" style="align-items: flex-end;">
+            <div class="cover-preview-container">
+                <img id="previewCapa" src="https://via.placeholder.com/150x220?text=Sem+Capa" alt="Capa" onerror="this.src='https://via.placeholder.com/150x220?text=Erro'">
+            </div>
+            
+            <div style="flex: 1;">
+                <div class="form-group">
+                    <label>Link da Imagem de Capa (URL)</label>
+                    <input type="url" id="capaUrl" placeholder="Cole o link da imagem aqui..." oninput="atualizarPreview()">
+                </div>
+                <div class="form-group">
+                    <label>Nome do Mangá</label>
+                    <input type="text" id="nome" placeholder="Ex: Berserk" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Nota</label>
+                <select id="nota">
+                    <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+                    <option value="4">⭐⭐⭐⭐ (4)</option>
+                    <option value="3">⭐⭐⭐ (3)</option>
+                    <option value="2">⭐⭐ (2)</option>
+                    <option value="1">⭐ (1)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Comecei em:</label>
+                <input type="date" id="dataInicio" required>
+            </div>
+            <div class="form-group">
+                <label>Terminei em:</label>
+                <input type="date" id="dataFim">
+            </div>
+            <div class="form-group">
+                <label>Add em:</label>
+                <input type="date" id="dataRegistro" readonly>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label>Sinopse / Review</label>
+            <textarea id="review" rows="3" placeholder="Sinopse ou sua opinião..."></textarea>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label style="display: inline-flex; align-items: center; gap: 10px; cursor: pointer;">
+                <input type="checkbox" id="favorito" style="width: auto;">
+                Marcar como Favorito ❤️
+            </label>
+        </div>
+
+        <div class="btn-group">
+            <button type="button" id="btnCancel" class="btn-cancel" onclick="cancelarEdicao()">Cancelar</button>
+            <button type="submit" id="btnSubmit" class="btn-submit">Adicionar à Coleção</button>
+        </div>
+    </form>
+</div>
+
 <div class="container">
     <h1>⛩️ Biblioteca de Mangás</h1>
     
