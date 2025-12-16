@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Biblioteca de Mangás</title>
+    <style>
+        /* --- ESTILOS GERAIS (Dark Theme) --- */
+        :root {
+            --primary: #ff6b6b; /* Cor de destaque (tipo capa de Jump) */
+            --bg: #1a1a2e;
+            --card-bg: #16213e;
+            --text: #e94560;
+            --text-light: #f5f5f5;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text-light); margin: 0; padding: 20px; }
+        
+        h1 { text-align: center; color: var(--primary); }
+        
+        /* Layout Principal */
+        .container { max-width: 1000px; margin: 0 auto; }
+        
+        /* Formulário */
+        .form-card { background-color: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); margin-bottom: 30px; border-left: 5px solid var(--primary); }
+        
+        .form-row { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; }
+        .form-group { flex: 1; min-width: 200px; }
+        
+        label { display: block; margin-bottom: 5px; font-size: 0.9em; color: #ccc; }
+        input, select, textarea { width: 100%; padding: 10px; background: #0f3460; border: 1px solid #0f3460; color: white; border-radius: 6px; box-sizing: border-box; }
+        input:focus, textarea:focus { outline: 2px solid var(--primary); }
+        
+        button.btn-add { background-color: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; width: 100%; transition: 0.3s; }
+        button.btn-add:hover { filter: brightness(1.1); }
+
+        /* Grid de Mangás */
+        .manga-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        
+        /* Card do Mangá */
+        .manga-card { background-color: var(--card-bg); padding: 20px; border-radius: 12px; position: relative; transition: transform 0.2s; border: 1px solid #2a2a40; }
+        .manga-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        
+        .manga-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .manga-title { font-size: 1.4em; font-weight: bold; color: var(--primary); margin: 0; }
+        
+        .favorite-btn { background: none; border: none; font-size: 1.5em; cursor: pointer; color: #555; transition: 0.3s; }
+        .favorite-btn.active { color: gold; }
+
+        .manga-dates { font-size: 0.85em; color: #aaa; margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px; }
+        .date-item { display: flex; justify-content: space-between; margin-bottom: 4px; }
+
+        .manga-review { font-style: italic; color: #ddd; margin-bottom: 15px; font-size: 0.95em; line-height: 1.4; }
+        
+        .manga-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #2a2a40; padding-top: 10px; }
+        
+        .stars { color: gold; letter-spacing: 2px; }
+        
+        .btn-delete { background-color: transparent; color: #ff4757; border: 1px solid #ff4757; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; }
+        .btn-delete:hover { background-color: #ff4757; color: white; }
+
+        /* Badge de Status */
+        .status-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75em; font-weight: bold; margin-top: 5px; }
+        .status-lendo { background-color: #2ecc71; color: #1a1a2e; }
+        .status-concluido { background-color: #3498db; color: white; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>⛩️ Biblioteca de Mangás</h1>
+
+    <div class="form-card">
+        <form id="mangaForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Nome do Mangá</label>
+                    <input type="text" id="nome" placeholder="Ex: Berserk" required>
+                </div>
+                <div class="form-group">
+                    <label>Nota (1 a 5)</label>
+                    <select id="nota">
+                        <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+                        <option value="4">⭐⭐⭐⭐ (4)</option>
+                        <option value="3">⭐⭐⭐ (3)</option>
+                        <option value="2">⭐⭐ (2)</option>
+                        <option value="1">⭐ (1)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Comecei a ler em:</label>
+                    <input type="date" id="dataInicio" required>
+                </div>
+                <div class="form-group">
+                    <label>Terminei em (Opcional):</label>
+                    <input type="date" id="dataFim">
+                </div>
+                <div class="form-group">
+                    <label>Adicionado ao site em:</label>
+                    <input type="date" id="dataRegistro" readonly>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label>Sua Análise / Review</label>
+                <textarea id="review" rows="3" placeholder="O que você achou da história?"></textarea>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display: inline-flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" id="favorito" style="width: auto;">
+                    Marcar como Favorito ❤️
+                </label>
+            </div>
+
+            <button type="submit" class="btn-add">Adicionar à Coleção</button>
+        </form>
+    </div>
+
+    <div id="listaMangas" class="manga-grid">
+        </div>
+</div>
+
+<script>
+    /**
+     * ESTRUTURA DOS DADOS (Para sua referência de dev)
+     * {
+     * id: number (timestamp),
+     * nome: string,
+     * nota: number,
+     * inicio: string (date),
+     * fim: string (date) | null,
+     * registro: string (date),
+     * review: string,
+     * favorito: boolean
+     * }
+     */
+
+    // 1. STATE & STORAGE
+    // Carrega do localStorage ou inicia array vazio
+    let biblioteca = JSON.parse(localStorage.getItem('meusMangas')) || [];
+
+    // Define data de hoje no campo "Adicionado em" automaticamente
+    document.getElementById('dataRegistro').valueAsDate = new Date();
+
+    // 2. FUNÇÕES CORE
+    function salvarLocal() {
+        localStorage.setItem('meusMangas', JSON.stringify(biblioteca));
+    }
+
+    function renderizar() {
+        const grid = document.getElementById('listaMangas');
+        grid.innerHTML = '';
+
+        // Ordenar: Favoritos primeiro
+        const listaOrdenada = biblioteca.sort((a, b) => (b.favorito === true) - (a.favorito === true));
+
+        listaOrdenada.forEach(manga => {
+            // Lógica visual de estrelas
+            const estrelas = '★'.repeat(manga.nota) + '☆'.repeat(5 - manga.nota);
+            
+            // Lógica de Status (Se tem data fim, terminou. Senão, lendo)
+            const statusBadge = manga.fim 
+                ? `<span class="status-badge status-concluido">Concluído</span>` 
+                : `<span class="status-badge status-lendo">Lendo</span>`;
+
+            // Formatação de datas
+            const dtInicio = new Date(manga.inicio).toLocaleDateString('pt-BR', {timeZone: 'UTC'});
+            const dtRegistro = new Date(manga.registro).toLocaleDateString('pt-BR', {timeZone: 'UTC'});
+            const dtFim = manga.fim ? new Date(manga.fim).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : '---';
+
+            // Criar HTML do Card
+            const card = document.createElement('div');
+            card.className = 'manga-card';
+            card.innerHTML = `
+                <div class="manga-header">
+                    <div>
+                        <h3 class="manga-title">${manga.nome}</h3>
+                        ${statusBadge}
+                    </div>
+                    <button class="favorite-btn ${manga.favorito ? 'active' : ''}" 
+                            onclick="toggleFavorito(${manga.id})" title="Favoritar">
+                        ♥
+                    </button>
+                </div>
+                
+                <div class="manga-dates">
+                    <div class="date-item"><span>Início:</span> <b>${dtInicio}</b></div>
+                    <div class="date-item"><span>Fim:</span> <b>${dtFim}</b></div>
+                    <div class="date-item"><span>Add em:</span> <b>${dtRegistro}</b></div>
+                </div>
+
+                <p class="manga-review">"${manga.review}"</p>
+                
+                <div class="manga-footer">
+                    <span class="stars" title="Nota ${manga.nota}/5">${estrelas}</span>
+                    <button class="btn-delete" onclick="deletarManga(${manga.id})">Remover</button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    // 3. AÇÕES (CRUD)
+    document.getElementById('mangaForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const novoManga = {
+            id: Date.now(),
+            nome: document.getElementById('nome').value,
+            nota: parseInt(document.getElementById('nota').value),
+            inicio: document.getElementById('dataInicio').value,
+            fim: document.getElementById('dataFim').value || null, // Pode ser vazio
+            registro: document.getElementById('dataRegistro').value,
+            review: document.getElementById('review').value,
+            favorito: document.getElementById('favorito').checked
+        };
+
+        biblioteca.push(novoManga);
+        salvarLocal();
+        renderizar();
+        
+        // Resetar form mas manter data de registro hoje
+        e.target.reset();
+        document.getElementById('dataRegistro').valueAsDate = new Date();
+    });
+
+    function toggleFavorito(id) {
+        const index = biblioteca.findIndex(m => m.id === id);
+        if(index !== -1) {
+            biblioteca[index].favorito = !biblioteca[index].favorito; // Inverte true/false
+            salvarLocal();
+            renderizar();
+        }
+    }
+
+    function deletarManga(id) {
+        if(confirm('Tem certeza que deseja apagar este mangá da história?')) {
+            biblioteca = biblioteca.filter(m => m.id !== id);
+            salvarLocal();
+            renderizar();
+        }
+    }
+
+    // Inicializar
+    renderizar();
+
+</script>
+
+</body>
+</html>
